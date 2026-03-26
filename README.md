@@ -1,16 +1,25 @@
 # Claude-to-OpenAI API Proxy
 
-接收 Claude Messages API (`/v1/messages`) 格式的流式请求，转换为 OpenAI Chat Completions API 格式转发到已配置的后端，再将响应转回 Claude SSE 格式。
+If you already have an OpenAI-compatible API endpoint and want to use it with Claude clients, this proxy bridges the gap. It accepts Claude Messages API requests, translates them to OpenAI Chat Completions format, forwards them to your backend, and converts the streaming response back to Claude SSE format.
 
-## 安装
+## Features
+
+- Streaming responses (SSE)
+- System prompt
+- Multi-turn conversations
+- Image inputs (base64 / URL)
+- Tool use (function calling)
+- Tool result passback
+- Parameter mapping: max_tokens, temperature, top_p, stop_sequences
+
+## Setup
 
 ```bash
 uv add fastapi uvicorn httpx pyyaml
+cp config.yaml.example config.yaml
 ```
 
-## 配置
-
-编辑 `config.yaml`：
+Edit `config.yaml` with your backend details:
 
 ```yaml
 base_url: "https://api.openai.com/v1"
@@ -20,13 +29,13 @@ host: "0.0.0.0"
 port: 8080
 ```
 
-## 运行
+## Usage
 
 ```bash
 python main.py
 ```
 
-## 使用
+Then point your Claude client to `http://localhost:8080` as the API base URL:
 
 ```bash
 curl http://localhost:8080/v1/messages \
@@ -38,13 +47,3 @@ curl http://localhost:8080/v1/messages \
     "messages": [{"role": "user", "content": "Hello"}]
   }'
 ```
-
-## 支持的功能
-
-- 流式响应 (SSE)
-- System prompt
-- 多轮对话
-- 图片输入 (base64 / URL)
-- Tool use (函数调用)
-- Tool result (工具结果回传)
-- 参数映射: max_tokens, temperature, top_p, stop_sequences
