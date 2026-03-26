@@ -80,15 +80,15 @@ def _convert_messages(claude_messages: list) -> list:
 
         # User with tool_result → OpenAI tool messages
         if tool_results:
-            # Emit non-tool content first
-            parts = [p for b in others if (p := _convert_content_block(b))]
-            if parts:
-                out.append({"role": "user", "content": parts if len(parts) > 1 else parts[0].get("text", parts)})
             for tr in tool_results:
                 c = tr.get("content", "")
                 if isinstance(c, list):
                     c = "\n".join(b.get("text", str(b)) for b in c)
                 out.append({"role": "tool", "tool_call_id": tr["tool_use_id"], "content": c or ""})
+            # Emit non-tool content after tool results
+            parts = [p for b in others if (p := _convert_content_block(b))]
+            if parts:
+                out.append({"role": "user", "content": parts if len(parts) > 1 else parts[0].get("text", parts)})
             continue
 
         # Regular content blocks
